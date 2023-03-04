@@ -15,12 +15,6 @@ logger = logging_client.logger(name='cloud-run-pubsub-consumer')
 
 
 def callback(message) -> None:
-    logger.log_struct(
-        {
-            "message": f"Received {message.data!r}."  # DO NOT LOG DATA on PROD!
-        },
-        severity="INFO"
-    )
     message.ack()
 
 

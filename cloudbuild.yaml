@@ -1,9 +1,9 @@
 steps:
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'build', '-t', 'europe-west2-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${COMMIT_SHA}', '.' ]
+    args: [ 'build', '-t', 'europe-west2-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:${_COMMIT_SHA}', '.' ]
 
   # Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: [ 'push', 'europe-west2-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}:${COMMIT_SHA}' ]
+    args: [ 'push', 'europe-west2-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:${_COMMIT_SHA}' ]
 
