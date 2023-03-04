@@ -19,7 +19,7 @@ def callback(message) -> None:
 
 
 # Limit the subscriber to only have ten outstanding messages at a time.
-flow_control = pubsub_v1.types.FlowControl(max_messages=10)
+flow_control = pubsub_v1.types.FlowControl(max_messages=500)
 
 streaming_pull_future = subscriber.subscribe(
     subscription_path, callback=callback, flow_control=flow_control
