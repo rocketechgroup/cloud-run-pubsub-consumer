@@ -1,0 +1,2 @@
+google-cloud-pubsub==2.15.0
+google-cloud-logging==3.5.0
