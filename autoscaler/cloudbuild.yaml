@@ -1,0 +1,7 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [ 'functions', 'deploy', 'consumer_autoscaler', '--runtime', 'python38', '--entry-point', 'autoscale', '--trigger-http', '--region', '${_REGION}', '--source', '.', '--service-account', '${_AUTOSCALER_SERVICE_ACCOUNT}', '--set-env-vars', 'PROJECT_ID=${_PROJECT_ID}', '--set-env-vars', 'SUBSCRIPTION_ID=${_SUBSCRIPTION_ID}', '--ingress-settings', 'internal-only' ]
+    env:
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - 'REGION=${_REGION}'
+    timeout: 180s

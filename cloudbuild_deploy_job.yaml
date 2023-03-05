@@ -1,0 +1,7 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [ 'beta', 'run', 'jobs', 'create','${_IMAGE_NAME}', '--image', 'europe-west2-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_IMAGE_NAME}:${_COMMIT_SHA}', '--tasks', '${_NUM_TASKS}', '--set-env-vars', 'PROJECT_ID=${_PROJECT_ID}', '--set-env-vars', 'SUBSCRIPTION_ID=${_SUBSCRIPTION_ID}' ]
+    env:
+      - 'PROJECT_ID=${_PROJECT_ID}'
+      - 'REGION=${_REGION}'
+    timeout: 180s

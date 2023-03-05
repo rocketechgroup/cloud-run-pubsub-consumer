@@ -4,40 +4,56 @@ A repo to test out using Cloud Run Job as PubSub Consumer
 
 ## Global vars
 
-export PROJECT_ID=${PROJECT_ID}
+```
+export PROJECT_ID=[PROJECT_ID]
+export REGION=[REGION]
+export CONSUMER_SA_NAME=[CONSUMER_SA_NAME]
+export TOPIC_NAME=[TOPIC_NAME]
+export SUBSCRIPTION_ID=[SUBSCRIPTION_ID]
+```
 
 ## Create PubSub Resource
 
 Topic
 
 ```
-gcloud pubsub topics create [TOPIC_NAME] --project=${PROJECT_ID}
+gcloud pubsub topics create ${TOPIC_NAME} --project=${PROJECT_ID}
 ```
 
 Subscription
 
 ```
-gcloud pubsub subscriptions create [SUBSCRIPTION_NAME] --topic=[TOPIC_NAME] --project=${PROJECT_ID}
+gcloud pubsub subscriptions create ${SUBSCRIPTION_ID} --topic=${TOPIC_NAME} --project=${PROJECT_ID}
 ```
 
 ## Create Service Account and assign roles
 
 ```
-gcloud iam service-accounts create cloud-run-job-pubsub-consumer
-gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:[SERVICE_ACCOUNT_EMAIL]" --role "roles/pubsub.subscriber"
-gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:[SERVICE_ACCOUNT_EMAIL]" --role "roles/logging.logWriter"
+gcloud iam service-accounts create ${CONSUMER_SA_NAME}
+gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${CONSUMER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/pubsub.subscriber"
+gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${CONSUMER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/logging.logWriter"
 ```
 
-## Build & Deploy
+## Build & Deploy the consumer to Cloud Run
 
 Create Artifact Registry repo
 
 ```
-gcloud artifacts repositories create pubsub-consumers --repository-format=docker --location=europe-west2
+gcloud artifacts repositories create pubsub-consumers --repository-format=docker --location=${REGION}
 ```
 
 Build & Deploy
 
+Build Image
+
 ```
-gcloud builds submit --config cloudbuild.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=[AF_REPO_NAME],_IMAGE_NAME=[IMAGE_NAME],_COMMIT_SHA=${git rev-parse --short=8 HEAD}
+gcloud builds submit --config cloudbuild_build_image.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=[AF_REPO_NAME],_IMAGE_NAME=[IMAGE_NAME],_COMMIT_SHA=${git rev-parse --short=8 HEAD}
 ```
+
+Deploy Cloud Run Job
+
+```
+gcloud builds submit --config cloudbuild_deploy_job.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=[AF_REPO_NAME],_IMAGE_NAME=[IMAGE_NAME],_COMMIT_SHA=${git rev-parse --short=8 HEAD},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID}
+```
+
+TOOD: additional deployment steps for Cloud Run Job and Cloud Scheduler trigger of execution

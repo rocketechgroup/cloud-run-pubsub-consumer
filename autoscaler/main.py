@@ -1,22 +1,39 @@
 import os
 import time
-
 import requests
 import json
 
 from google.cloud import logging
-from google.auth import default
 from google.cloud import monitoring_v3
-from google.auth.transport.requests import Request
 
 logging_client = logging.Client()
 logger = logging_client.logger(name='cloud-run-pubsub-consumer-autoscaler')
 
+METADATA_URL = 'http://metadata.google.internal/computeMetadata/v1/'
+METADATA_HEADERS = {'Metadata-Flavor': 'Google'}
+SERVICE_ACCOUNT = 'default'
+
 PROJECT_ID = os.environ.get('PROJECT_ID')
 SUBSCRIPTION_ID = os.environ.get('SUBSCRIPTION_ID')
+
+JOB = 'cloud-run-pubsub-consumer'
 LOCATION = 'europe-west2'
 default_task_count = 10
 max_task_count = 100
+
+
+def get_access_token():
+    url = '{}instance/service-accounts/{}/token'.format(
+        METADATA_URL, SERVICE_ACCOUNT)
+
+    # Request an access token from the metadata server.
+    r = requests.get(url, headers=METADATA_HEADERS)
+    r.raise_for_status()
+
+    # Extract the access token from the response.
+    access_token = r.json()['access_token']
+
+    return access_token
 
 
 # This function use the seconds of the oldest unacked message to measure if there are not enough resources
@@ -62,19 +79,11 @@ def subscription_delay_is_high(max_seconds=150):
     return False
 
 
-def autoscale(job):
-    # Obtain the default credentials
-    credentials, project_id = default()
-
-    # Refresh the credentials if necessary
-    if credentials.expired and credentials.refresh_token:
-        credentials.refresh(Request())
-
-    # Obtain the access token from the credentials
-    access_token = credentials.token
+def autoscale(request):
+    access_token = get_access_token()
 
     # Define the URL of the Cloud Run service
-    job_name = f'projects/{PROJECT_ID}/locations/{LOCATION}/jobs/{job}'
+    job_name = f'projects/{PROJECT_ID}/locations/{LOCATION}/jobs/{JOB}'
     job_url = f'https://europe-west2-run.googleapis.com/v2/{job_name}'
 
     # Define the access token
@@ -112,5 +121,4 @@ def autoscale(job):
             severity="INFO"
         )
 
-
-autoscale(job='cloud-run-pubsub-consumer')
+    return {}
