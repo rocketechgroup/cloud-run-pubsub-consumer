@@ -36,24 +36,37 @@ gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${
 
 ## Build & Deploy the consumer to Cloud Run
 
-Create Artifact Registry repo
-
+Additional Env vars required
 ```
-gcloud artifacts repositories create pubsub-consumers --repository-format=docker --location=${REGION}
-```
-
-Build & Deploy
-
-Build Image
-
-```
-gcloud builds submit --config cloudbuild_build_image.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=[AF_REPO_NAME],_IMAGE_NAME=[IMAGE_NAME],_COMMIT_SHA=${git rev-parse --short=8 HEAD}
+export AF_REPO_NAME=[AF_REPO_NAME]
+export IMAGE_NAME=[IMAGE_NAME]
+export COMMIT_SHA=$(git rev-parse --short=8 HEAD)
 ```
 
-Deploy Cloud Run Job
+### Create Artifact Registry repo
 
 ```
-gcloud builds submit --config cloudbuild_deploy_job.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=[AF_REPO_NAME],_IMAGE_NAME=[IMAGE_NAME],_COMMIT_SHA=${git rev-parse --short=8 HEAD},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID}
+gcloud artifacts repositories create ${AF_REPO_NAME} --repository-format=docker --location=${REGION}
+```
+
+### Build & Deploy
+
+#### Build Image
+
+```
+gcloud builds submit --config cloudbuild_build_image.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=${AF_REPO_NAME},_IMAGE_NAME=${IMAGE_NAME},_COMMIT_SHA=${COMMIT_SHA}
+```
+
+#### Deploy Cloud Run Job
+
+Additional Env vars required
+```
+export NUM_TASKS=3
+```
+
+Submit
+```
+gcloud builds submit --config cloudbuild_deploy_job.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=${AF_REPO_NAME},_IMAGE_NAME=${IMAGE_NAME},_COMMIT_SHA=${COMMIT_SHA},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID},_NUM_TASKS=${NUM_TASKS},_REGION=${REGION},_SA=${CONSUMER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 ```
 
 TOOD: additional deployment steps for Cloud Run Job and Cloud Scheduler trigger of execution

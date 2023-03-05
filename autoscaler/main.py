@@ -17,8 +17,8 @@ PROJECT_ID = os.environ.get('PROJECT_ID')
 SUBSCRIPTION_ID = os.environ.get('SUBSCRIPTION_ID')
 
 JOB = 'cloud-run-pubsub-consumer'
-LOCATION = 'europe-west2'
-default_task_count = 10
+REGION = 'europe-west2'
+default_task_count = 3
 max_task_count = 100
 
 
@@ -83,8 +83,8 @@ def autoscale(request):
     access_token = get_access_token()
 
     # Define the URL of the Cloud Run service
-    job_name = f'projects/{PROJECT_ID}/locations/{LOCATION}/jobs/{JOB}'
-    job_url = f'https://europe-west2-run.googleapis.com/v2/{job_name}'
+    job_name = f'projects/{PROJECT_ID}/locations/{REGION}/jobs/{JOB}'
+    job_url = f'https://{REGION}-run.googleapis.com/v2/{job_name}'
 
     # Define the access token
     headers = {'Authorization': f'Bearer {access_token}'}
