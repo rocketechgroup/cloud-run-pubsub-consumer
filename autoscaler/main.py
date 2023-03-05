@@ -54,7 +54,7 @@ def get_default_access_token():
 
 
 # This function use the seconds of the oldest unacked message to measure if there are not enough resources
-def subscription_delay_is_high(max_seconds=150):
+def subscription_delay_is_high(max_seconds=30):
     client = monitoring_v3.MetricServiceClient()
     metric_type = 'pubsub.googleapis.com/subscription/oldest_unacked_message_age'
     now = time.time()
