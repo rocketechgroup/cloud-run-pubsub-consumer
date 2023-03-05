@@ -32,5 +32,3 @@ Build & deploy
 ```
 gcloud builds submit --config cloudbuild.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID},_REGION=${REGION},_AUTOSCALER_SERVICE_ACCOUNT=${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 ```
-
-TOOD: additional deployment steps for Cloud Scheduler trigger of execution

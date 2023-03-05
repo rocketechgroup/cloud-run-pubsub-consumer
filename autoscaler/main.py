@@ -5,6 +5,8 @@ import json
 
 from google.cloud import logging
 from google.cloud import monitoring_v3
+from google.auth import default
+from google.auth.transport.requests import Request
 
 logging_client = logging.Client()
 logger = logging_client.logger(name='cloud-run-pubsub-consumer-autoscaler')
@@ -23,17 +25,32 @@ max_task_count = 100
 
 
 def get_access_token():
-    url = '{}instance/service-accounts/{}/token'.format(
-        METADATA_URL, SERVICE_ACCOUNT)
+    try:
+        url = '{}instance/service-accounts/{}/token'.format(
+            METADATA_URL, SERVICE_ACCOUNT)
 
-    # Request an access token from the metadata server.
-    r = requests.get(url, headers=METADATA_HEADERS)
-    r.raise_for_status()
+        # Request an access token from the metadata server.
+        r = requests.get(url, headers=METADATA_HEADERS)
+        r.raise_for_status()
 
-    # Extract the access token from the response.
-    access_token = r.json()['access_token']
+        # Extract the access token from the response.
+        access_token = r.json()['access_token']
+    except requests.exceptions.ConnectionError:
+        return None
 
     return access_token
+
+
+def get_default_access_token():
+    # Obtain the default credentials
+    credentials, project_id = default()
+
+    # Refresh the credentials if necessary
+    if credentials.expired and credentials.refresh_token:
+        credentials.refresh(Request())
+
+    # Obtain the access token from the credentials
+    return credentials.token
 
 
 # This function use the seconds of the oldest unacked message to measure if there are not enough resources
@@ -81,6 +98,8 @@ def subscription_delay_is_high(max_seconds=150):
 
 def autoscale(request):
     access_token = get_access_token()
+    if not access_token:
+        access_token = get_default_access_token()
 
     # Define the URL of the Cloud Run service
     job_name = f'projects/{PROJECT_ID}/locations/{REGION}/jobs/{JOB}'
@@ -122,3 +141,7 @@ def autoscale(request):
         )
 
     return {}
+
+
+if __name__ == '__main__':
+    autoscale(None)
