@@ -27,6 +27,8 @@ gcloud pubsub subscriptions create ${SUBSCRIPTION_ID} --topic=${TOPIC_NAME} --pr
 ```
 
 ## Create Service Account and assign roles
+## Create Service Account and assign roles
+> `roles/pubsub.subscriber` is just for convenience, for PROD do not use project level permissions, grant permission to the specific Subscription
 
 ```
 gcloud iam service-accounts create ${CONSUMER_SA_NAME}

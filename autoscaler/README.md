@@ -14,12 +14,13 @@ export SUBSCRIPTION_ID=[SUBSCRIPTION_ID]
 ```
 
 ## Create Service Account and assign roles
-
+> `"roles/run.admin` and `roles/iam.serviceAccountUser` are just for convenience, for PROD do not use project level permissions, grant permission to the specific Cloud Run service
 ```
 gcloud iam service-accounts create ${AUTOSCALER_SA_NAME}
 gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/monitoring.viewer"
 gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/logging.logWriter"
-gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/run.developer"
+gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/run.admin"
+gcloud projects add-iam-policy-binding ${PROJECT_ID} --member "serviceAccount:${AUTOSCALER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com" --role "roles/iam.serviceAccountUser"
 ```
 
 ## Build & Deploy the autoscaler to Cloud Function
