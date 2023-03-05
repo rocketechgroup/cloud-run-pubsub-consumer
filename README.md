@@ -64,9 +64,12 @@ Additional Env vars required
 export NUM_TASKS=3
 ```
 
-Submit
+Create
 ```
 gcloud builds submit --config cloudbuild_deploy_job.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=${AF_REPO_NAME},_IMAGE_NAME=${IMAGE_NAME},_COMMIT_SHA=${COMMIT_SHA},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID},_NUM_TASKS=${NUM_TASKS},_REGION=${REGION},_SA=${CONSUMER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
 ```
 
-TOOD: additional deployment steps for Cloud Run Job and Cloud Scheduler trigger of execution
+Update
+```
+gcloud builds submit --config cloudbuild_update_job.yaml --substitutions _PROJECT_ID=${PROJECT_ID},_REPO_NAME=${AF_REPO_NAME},_IMAGE_NAME=${IMAGE_NAME},_COMMIT_SHA=${COMMIT_SHA},_SUBSCRIPTION_ID=${SUBSCRIPTION_ID},_NUM_TASKS=${NUM_TASKS},_REGION=${REGION},_SA=${CONSUMER_SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+```
